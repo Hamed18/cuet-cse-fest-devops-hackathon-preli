@@ -1,6 +1,56 @@
-# services:
-  # backend:
+version: "3.9"
 
-  # gateway:
+services:
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: dev-backend
+    env_file:
+      - ../.env
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - MONGO_DATABASE=${MONGO_DATABASE}
+      - BACKEND_PORT=${BACKEND_PORT}
+      - NODE_ENV=development
+    depends_on:
+      - mongo
+    networks:
+      - internal_net
 
-  # mongo:
+  gateway:
+    build:
+      context: ../gateway
+      dockerfile: Dockerfile
+    container_name: dev-gateway
+    env_file:
+      - ../.env
+    environment:
+      - GATEWAY_PORT=${GATEWAY_PORT}
+      - BACKEND_URL=http://backend:${BACKEND_PORT}
+      - NODE_ENV=development
+    depends_on:
+      - backend
+    ports:
+      - "${GATEWAY_PORT}:${GATEWAY_PORT}"
+    networks:
+      - internal_net
+  mongo:
+    image: mongo:7
+    container_name: dev-mongo
+    env_file:
+      - ../.env
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+    volumes:
+      - mongo_data_dev:/data/db
+    networks:
+      - internal_net
+
+networks:
+  internal_net:
+    driver: bridge
+
+volumes:
+  mongo_data_dev:

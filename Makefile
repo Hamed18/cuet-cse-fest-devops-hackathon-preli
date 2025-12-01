@@ -48,3 +48,89 @@
 # Help:
 #   help - Display this help message
 
+
+COMPOSE_DEV  = docker/compose.development.yaml
+COMPOSE_PROD = docker/compose.production.yaml
+
+
+
+dev-up:
+	docker compose -f $(COMPOSE_DEV) up -d --build
+
+dev-down:
+	docker compose -f $(COMPOSE_DEV) down
+
+dev-restart: dev-down dev-up
+
+dev-logs:
+	docker compose -f $(COMPOSE_DEV) logs -f
+
+dev-logs-backend:
+	docker compose -f $(COMPOSE_DEV) logs -f backend
+
+dev-logs-gateway:
+	docker compose -f $(COMPOSE_DEV) logs -f gateway
+
+dev-logs-mongo:
+	docker compose -f $(COMPOSE_DEV) logs -f mongo
+
+dev-ps:
+	docker compose -f $(COMPOSE_DEV) ps
+
+dev-shell-backend:
+	docker compose -f $(COMPOSE_DEV) exec backend sh
+
+dev-shell-gateway:
+	docker compose -f $(COMPOSE_DEV) exec gateway sh
+
+
+prod-up:
+	docker compose -f $(COMPOSE_PROD) up -d --build
+
+prod-down:
+	docker compose -f $(COMPOSE_PROD) down
+
+prod-restart: prod-down prod-up
+
+prod-logs:
+	docker compose -f $(COMPOSE_PROD) logs -f
+
+prod-logs-backend:
+	docker compose -f $(COMPOSE_PROD) logs -f backend
+
+prod-logs-gateway:
+	docker compose -f $(COMPOSE_PROD) logs -f gateway
+
+prod-logs-mongo:
+	docker compose -f $(COMPOSE_PROD) logs -f mongo
+
+prod-ps:
+	docker compose -f $(COMPOSE_PROD) ps
+
+prod-shell-backend:
+	docker compose -f $(COMPOSE_PROD) exec backend sh
+
+prod-shell-gateway:
+	docker compose -f $(COMPOSE_PROD) exec gateway sh
+
+
+build-all:
+	docker compose -f $(COMPOSE_DEV) build
+	docker compose -f $(COMPOSE_PROD) build
+
+clean-volumes:
+	docker compose -f $(COMPOSE_DEV) down -v || true
+	docker compose -f $(COMPOSE_PROD) down -v || true
+
+help:
+	@echo "Dev:"
+	@echo "  make dev-up            # start dev stack"
+	@echo "  make dev-down          # stop dev stack"
+	@echo "  make dev-logs          # follow all dev logs"
+	@echo "  make dev-ps            # show dev containers"
+	@echo ""
+	@echo "Prod:"
+	@echo "  make prod-up           # start prod stack"
+	@echo "  make prod-down         # stop prod stack"
+	@echo "  make prod-logs         # follow all prod logs"
+	@echo "  make prod-ps           # show prod containers"
